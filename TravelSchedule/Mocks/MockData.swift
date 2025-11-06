@@ -1,3 +1,4 @@
+
 import Foundation
 
 // MARK: - Mock Data
@@ -132,19 +133,16 @@ struct MockData {
     
     // MARK: - Public Functions
     
-    /// Возвращает все города
     static func getAllCities() -> [City] {
         return allCities
     }
     
-    /// Возвращает станции для указанного города
     static func getStations(for cityCode: String) -> [Station] {
         return allStations.filter { station in
             stationToCityMapping[station.code] == cityCode
         }
     }
     
-    /// Поиск городов по запросу (регистронезависимый)
     static func searchCities(query: String) -> [City] {
         guard !query.isEmpty else {
             return getAllCities()
@@ -156,45 +154,41 @@ struct MockData {
         }
     }
     
-    /// Поиск станций по запросу
-    /// - Parameters:
-    ///   - query: Текст поиска
-    ///   - cityCode: Опциональный код города для фильтрации (если nil, поиск по всем станциям)
-    /// - Returns: Отфильтрованный массив станций
     static func searchStations(query: String, cityCode: String? = nil) -> [Station] {
         let queryLowercased = query.lowercased()
         
         var stations = allStations
         
-        // Фильтрация по городу, если указан
         if let cityCode = cityCode {
             stations = stations.filter { station in
                 stationToCityMapping[station.code] == cityCode
             }
         }
         
-        // Если запрос пустой, возвращаем все станции (с учетом фильтра по городу)
         guard !query.isEmpty else {
             return stations
         }
-        
-        // Поиск по названию станции
+       
         return stations.filter { station in
             station.title.lowercased().contains(queryLowercased)
         }
     }
     
-    /// Возвращает все перевозчики
     static func getAllCarriers() -> [Carrier] {
         return allCarriers
     }
     
-    /// Возвращает перевозчика по коду
     static func getCarrier(by code: String) -> Carrier? {
         return allCarriers.first { $0.code == code }
     }
     
-    /// Поиск перевозчиков по запросу (регистронезависимый)
+    static func getCity(for stationCode: String) -> City? {
+        guard let cityCode = stationToCityMapping[stationCode] else {
+            return nil
+        }
+        return allCities.first { $0.code == cityCode }
+    }
+    
     static func searchCarriers(query: String) -> [Carrier] {
         guard !query.isEmpty else {
             return getAllCarriers()
