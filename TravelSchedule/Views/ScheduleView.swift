@@ -65,25 +65,29 @@ struct ScheduleView: View {
     private var scheduleList: some View {
         LazyVStack(spacing: 8) {
             ForEach(viewModel.filteredSchedules) { schedule in
-                ScheduleCellView(schedule: schedule)
+                NavigationLink {
+                    CarrierCardView()
+                } label: {
+                    ScheduleCellView(schedule: schedule)
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.horizontal, 16)
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
+        VStack {
+            Spacer()
             Text("Вариантов нет")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(Color(.appBlack))
-
-            Text("Попробуйте изменить параметры поиска")
-                .font(.system(size: 15))
-                .foregroundColor(Color(.appGray))
+                .multilineTextAlignment(.center)
+            Spacer()
         }
-        .frame(maxWidth: .infinity, alignment: .center)
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)
-        .padding(.top, 120)
+        .frame(minHeight: 471)
     }
 }
 
@@ -92,13 +96,19 @@ private extension ScheduleView {
         Button(action: {
             isShowingFilters = true
         }) {
-            Text("Уточнить время")
-                .font(.system(size: 17, weight: .bold))
-                .foregroundColor(Color(.appWhite))
-                .frame(maxWidth: .infinity)
-                .frame(height: 60)
-                .background(Color(.appBlue))
-                .cornerRadius(16)
+            HStack(spacing: 4) {
+                Text("Уточнить время")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(Color(.appWhite))
+
+                Circle()
+                    .fill(Color(.appRed))
+                    .frame(width: 8, height: 8)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 60)
+            .background(Color(.appBlue))
+            .cornerRadius(16)
         }
         .buttonStyle(.plain)
         .padding(.horizontal, 16)
