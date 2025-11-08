@@ -119,6 +119,7 @@ private extension ScheduleCellView {
         Rectangle()
             .fill(separatorColor)
             .frame(height: 1)
+            .frame(maxWidth: .infinity)
     }
 }
 
