@@ -7,10 +7,10 @@ struct SettingsView: View {
             VStack {
                 Text("Экран настроек")
                     .font(.title)
-                    .foregroundColor(Color("AppBlack"))
+                    .foregroundColor(Color(.appBlack))
                 Text("Будет реализован в следующем спринте")
                     .font(.subheadline)
-                    .foregroundColor(Color("AppGray"))
+                    .foregroundColor(Color(.appGray))
                     .padding(.top, 8)
             }
         }

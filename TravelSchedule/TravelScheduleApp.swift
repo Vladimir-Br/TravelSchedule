@@ -16,7 +16,7 @@ struct TravelScheduleApp: App {
                     MainView()
                 }
                 .tabItem {
-                    Image("Schedule")
+                    Image(.schedule)
                         .renderingMode(.template)
                     Text("")
                 }
@@ -26,13 +26,13 @@ struct TravelScheduleApp: App {
                     SettingsView()
                 }
                 .tabItem {
-                    Image("Settings")
+                    Image(.settings)
                         .renderingMode(.template)
                     Text("")
                 }
                 .tag(1)
             }
-            .tint(Color("AppBlack"))
+            .tint(Color(.appBlack))
         }
     }
     
@@ -40,14 +40,14 @@ struct TravelScheduleApp: App {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         
-        appearance.backgroundColor = UIColor(named: "AppWhite")
+        appearance.backgroundColor = UIColor(resource: .appWhite)
         
         let offset = UIOffset(horizontal: 0, vertical: 50)
         appearance.stackedLayoutAppearance.normal.titlePositionAdjustment = offset
         appearance.stackedLayoutAppearance.selected.titlePositionAdjustment = offset
         
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(named: "AppBlack")
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(named: "AppGray")
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(resource: .appBlack)
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(resource: .appGray)
         
         appearance.shadowColor = UIColor.black.withAlphaComponent(0.3)
         appearance.shadowImage = UIImage()

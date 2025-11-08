@@ -57,6 +57,174 @@ struct MockData {
         Station(code: "KZN_VOS", title: "Восстание-Пассажирская")
     ]
     
+    // MARK: - Schedules Data
+    
+    static let allSchedules: [Schedule] = [
+        // Санкт-Петербург (Московский вокзал) → Москва (Ленинградский вокзал)
+        Schedule(
+            id: "S1",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 6, minute: 0),
+            arrivalTime: makeDate(hour: 9, minute: 30),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S2",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 7, minute: 30),
+            arrivalTime: makeDate(hour: 15, minute: 30),
+            carrierTitle: "РЖД",
+            hasTransfers: true,
+            transferCity: "Костроме"
+        ),
+        Schedule(
+            id: "S3",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 11, minute: 45),
+            arrivalTime: makeDate(hour: 15, minute: 15),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S4",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 13, minute: 30),
+            arrivalTime: makeDate(hour: 17, minute: 0),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S5",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 16, minute: 15),
+            arrivalTime: makeDate(hour: 19, minute: 45),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S6",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 19, minute: 40),
+            arrivalTime: makeDate(hour: 23, minute: 10),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S7",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 23, minute: 55),
+            arrivalTime: makeDate(hour: 8, minute: 5, nextDay: true),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S8",
+            fromStationCode: "SPB_MOS",
+            toStationCode: "MSK_LEN",
+            departureTime: makeDate(hour: 10, minute: 0),
+            arrivalTime: makeDate(hour: 14, minute: 30),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        
+        // Москва (Ленинградский вокзал) → Санкт-Петербург (Московский вокзал)
+        Schedule(
+            id: "S9",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 5, minute: 45),
+            arrivalTime: makeDate(hour: 9, minute: 15),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S10",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 7, minute: 0),
+            arrivalTime: makeDate(hour: 14, minute: 50),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S11",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 12, minute: 30),
+            arrivalTime: makeDate(hour: 16, minute: 0),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S12",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 15, minute: 20),
+            arrivalTime: makeDate(hour: 18, minute: 50),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S13",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 18, minute: 15),
+            arrivalTime: makeDate(hour: 21, minute: 45),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S14",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 20, minute: 30),
+            arrivalTime: makeDate(hour: 0, minute: 0, nextDay: true),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S15",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 1, minute: 10),
+            arrivalTime: makeDate(hour: 9, minute: 20),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        ),
+        Schedule(
+            id: "S16",
+            fromStationCode: "MSK_LEN",
+            toStationCode: "SPB_MOS",
+            departureTime: makeDate(hour: 14, minute: 0),
+            arrivalTime: makeDate(hour: 18, minute: 30),
+            carrierTitle: "РЖД",
+            hasTransfers: false,
+            transferCity: nil
+        )
+    ]
+
     // MARK: - Station to City Mapping
     
     private static let stationToCityMapping: [String: String] = [
@@ -198,5 +366,24 @@ struct MockData {
         return allCarriers.filter { carrier in
             carrier.title.lowercased().contains(lowercasedQuery)
         }
+    }
+
+    static func getSchedules(from fromStationCode: String, to toStationCode: String) -> [Schedule] {
+        allSchedules.filter { schedule in
+            schedule.fromStationCode == fromStationCode && schedule.toStationCode == toStationCode
+        }
+    }
+
+    // MARK: - Helpers
+
+    private static func makeDate(hour: Int, minute: Int, nextDay: Bool = false) -> Date {
+        var components = DateComponents()
+        components.year = 2025
+        components.month = 11
+        components.day = nextDay ? 7 : 6
+        components.hour = hour
+        components.minute = minute
+        let calendar = Calendar(identifier: .gregorian)
+        return calendar.date(from: components) ?? Date()
     }
 }

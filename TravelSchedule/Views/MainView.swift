@@ -26,15 +26,20 @@ struct MainView: View {
                         }
                     )
                     
-                    if viewModel.isFindButtonEnabled {
-                        Button(action: {
-                            // TODO: Переход на экран расписания
-                        }) {
+                    if viewModel.isFindButtonEnabled,
+                       let fromStation = viewModel.fromStation,
+                       let toStation = viewModel.toStation {
+                        NavigationLink {
+                            ScheduleView(
+                                fromStation: fromStation,
+                                toStation: toStation
+                            )
+                        } label: {
                             Text("Найти")
                                 .font(.system(size: 17, weight: .bold))
-                                .foregroundColor(Color("AppWhite"))
+                                .foregroundColor(Color(.appWhite))
                                 .frame(width: 150, height: 60)
-                                .background(Color("AppBlue"))
+                                .background(Color(.appBlue))
                                 .cornerRadius(16)
                         }
                     }
@@ -44,7 +49,7 @@ struct MainView: View {
                 Spacer()
             }
         }
-        .background(Color("AppWhite"))
+        .background(Color(.appWhite))
         .fullScreenCover(item: $selectionType) { type in
             CitySelectionView(
                 selectionType: type,
@@ -69,11 +74,11 @@ struct StoriesPlaceholder: View {
         VStack {
             Text("Здесь будут сторис")
                 .font(.system(size: 17))
-                .foregroundColor(Color("AppGray"))
+                .foregroundColor(Color(.appGray))
         }
         .frame(maxWidth: .infinity)
         .frame(height: 188)
-        .background(Color("AppWhite"))
+        .background(Color(.appWhite))
     }
 }
 
@@ -104,19 +109,18 @@ struct RouteSelectionContainer: View {
             .padding(.trailing, 16)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color("AppWhite"))
+                    .fill(Color(.appWhite))
             )
-            
-            // Кнопка swap
+           
             Button(action: onSwap) {
                 ZStack {
                     Circle()
-                        .fill(Color("AppWhite"))
+                        .fill(Color(.appWhite))
                         .frame(width: 36, height: 36)
                     
                     Image(systemName: "arrow.2.squarepath")
                         .font(.system(size: 18))
-                        .foregroundColor(Color("AppBlue"))
+                        .foregroundColor(Color(.appBlue))
                 }
             }
         }
@@ -124,7 +128,7 @@ struct RouteSelectionContainer: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color("AppBlue"))
+                .fill(Color(.appBlue))
         )
     }
 }
@@ -153,7 +157,7 @@ struct RouteFieldButton: View {
             HStack {
                 Text(displayText)
                     .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(station != nil ? Color("AppBlack") : Color("AppGray"))
+                    .foregroundColor(station != nil ? Color(.appBlack) : Color(.appGray))
                     .tracking(-0.41)
                     .lineLimit(1)
                     .truncationMode(.tail)

@@ -7,12 +7,12 @@ enum ErrorType {
     case serverError
     case noInternet
     
-    var imageName: String {
+    var imageResource: ImageResource {
         switch self {
         case .serverError:
-            return "ServerError"
+            return .serverError
         case .noInternet:
-            return "NoInternet"
+            return .noInternet
         }
     }
     
@@ -33,14 +33,14 @@ struct ErrorView: View {
     
     var body: some View {
         ZStack {
-            Color("AppWhite")
+            Color(.appWhite)
                 .ignoresSafeArea(.container, edges: .top)
             
             VStack {
                 Spacer()
                 
                 VStack(spacing: 16) {
-                    Image(errorType.imageName)
+                    Image(errorType.imageResource)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 223, height: 223)
@@ -48,7 +48,7 @@ struct ErrorView: View {
                     
                     Text(errorType.message)
                         .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(Color("AppBlack"))
+                        .foregroundColor(Color(.appBlack))
                 }
                 
                 Spacer()
@@ -69,7 +69,7 @@ struct ErrorView: View {
                     MainView()
                 }
                 .tabItem {
-                    Image("Schedule")
+                    Image(.schedule)
                         .renderingMode(.template)
                     Text("")
                 }
@@ -79,13 +79,13 @@ struct ErrorView: View {
                     ErrorView(errorType: .serverError)
                 }
                 .tabItem {
-                    Image("Settings")
+                    Image(.settings)
                         .renderingMode(.template)
                     Text("")
                 }
                 .tag(1)
             }
-            .tint(Color("AppBlack"))
+            .tint(Color(.appBlack))
         }
     }
     
@@ -102,7 +102,7 @@ struct ErrorView: View {
                     MainView()
                 }
                 .tabItem {
-                    Image("Schedule")
+                    Image(.schedule)
                         .renderingMode(.template)
                     Text("")
                 }
@@ -112,13 +112,13 @@ struct ErrorView: View {
                     ErrorView(errorType: .noInternet)
                 }
                 .tabItem {
-                    Image("Settings")
+                    Image(.settings)
                         .renderingMode(.template)
                     Text("")
                 }
                 .tag(1)
             }
-            .tint(Color("AppBlack"))
+            .tint(Color(.appBlack))
         }
     }
     

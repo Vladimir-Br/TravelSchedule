@@ -26,19 +26,10 @@ struct CitySelectionView: View {
                 SearchBar(text: $viewModel.searchQuery)
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
-                
-                if viewModel.isEmpty {
-                    EmptyCityState()
-                } else {
-                    CityList(
-                        cities: viewModel.filteredCities,
-                        selectionType: selectionType,
-                        onStationSelected: onStationSelected
-                    )
-                    .padding(.top, 16)
-                }
+
+                contentView
             }
-            .background(Color("AppWhite"))
+            .background(Color(.appWhite))
             .navigationTitle("Выбор города")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -47,10 +38,24 @@ struct CitySelectionView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(Color("AppBlack"))
+                            .foregroundColor(Color(.appBlack))
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var contentView: some View {
+        if viewModel.isEmpty {
+            EmptyCityState()
+        } else {
+            CityList(
+                cities: viewModel.filteredCities,
+                selectionType: selectionType,
+                onStationSelected: onStationSelected
+            )
+            .padding(.top, 16)
         }
     }
 }
@@ -59,28 +64,39 @@ struct CitySelectionView: View {
 
 struct SearchBar: View {
     @Binding var text: String
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var iconColor: Color { colorScheme == .dark ? .secondary : Color(.appGray) }
+    private var backgroundColor: Color {
+        colorScheme == .dark ? Color(.appGray).opacity(0.35) : Color(.appLightGray)
+    }
     
     var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(Color("AppGray"))
-            
-            TextField("Введите запрос", text: $text)
-                .foregroundColor(Color("AppBlack"))
+                .foregroundColor(iconColor)
+
+            TextField(
+                "",
+                text: $text,
+                prompt: Text("Введите запрос").foregroundColor(.secondary)
+            )
+            .foregroundColor(.primary)
+            .tint(.primary)
             
             if !text.isEmpty {
                 Button {
                     text = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(Color("AppGray"))
+                        .foregroundColor(iconColor)
                 }
             }
         }
         .padding(.vertical, 7)
         .padding(.horizontal, 8)
         .frame(height: 36)
-        .background(Color("AppLight Gray"))
+        .background(backgroundColor)
         .cornerRadius(10)
     }
 }
@@ -96,32 +112,48 @@ struct CityList: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 ForEach(cities) { city in
-                    NavigationLink {
-                        StationSelectionView(
-                            city: city,
-                            selectionType: selectionType,
-                            onStationSelected: onStationSelected
-                        )
-                    } label: {
-                        HStack {
-                            Text(city.title)
-                                .font(.system(size: 17))
-                                .foregroundColor(Color("AppBlack"))
-                                .tracking(-0.41)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(Color("AppBlack"))
-                        }
-                        .frame(height: 60)
-                        .padding(.horizontal, 16)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
+                    CityRow(
+                        city: city,
+                        selectionType: selectionType,
+                        onStationSelected: onStationSelected
+                    )
                 }
             }
         }
+    }
+}
+
+// MARK: - City Row
+
+private struct CityRow: View {
+    let city: City
+    let selectionType: StationSelectionType
+    let onStationSelected: (Station) -> Void
+
+    var body: some View {
+        NavigationLink {
+            StationSelectionView(
+                city: city,
+                selectionType: selectionType,
+                onStationSelected: onStationSelected
+            )
+        } label: {
+            HStack {
+                Text(city.title)
+                    .font(.system(size: 17))
+                    .foregroundColor(Color(.appBlack))
+                    .tracking(-0.41)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color(.appBlack))
+            }
+            .frame(height: 60)
+            .padding(.horizontal, 16)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -134,12 +166,12 @@ struct EmptyCityState: View {
             
             Text("Город не найден")
                 .font(.system(size: 24, weight: .bold))
-                .foregroundColor(Color("AppBlack"))
+                .foregroundColor(Color(.appBlack))
             
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color("AppWhite"))
+        .background(Color(.appWhite))
     }
 }
 

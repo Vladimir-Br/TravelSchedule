@@ -32,7 +32,7 @@ struct StationSelectionView: View {
             )
             .padding(.top, 16)
         }
-        .background(Color("AppWhite"))
+        .background(Color(.appWhite))
         .navigationTitle("Выбор станции")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -41,7 +41,7 @@ struct StationSelectionView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(Color("AppBlack"))
+                        .foregroundColor(Color(.appBlack))
                 }
             }
         }
@@ -65,13 +65,13 @@ struct StationList: View {
                         HStack {
                             Text(station.title)
                                 .font(.system(size: 17))
-                                .foregroundColor(Color("AppBlack"))
+                                .foregroundColor(Color(.appBlack))
                                 .tracking(-0.41)
                             
                             Spacer()
                             
                             Image(systemName: "chevron.right")
-                                .foregroundColor(Color("AppBlack"))
+                                .foregroundColor(Color(.appBlack))
                         }
                         .frame(height: 60)
                         .padding(.horizontal, 16)
