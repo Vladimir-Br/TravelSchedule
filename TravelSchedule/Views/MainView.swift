@@ -37,7 +37,7 @@ struct MainView: View {
                         } label: {
                             Text("Найти")
                                 .font(.system(size: 17, weight: .bold))
-                                .foregroundColor(Color(.appWhite))
+                                .foregroundColor(.white)
                                 .frame(width: 150, height: 60)
                                 .background(Color(.appBlue))
                                 .cornerRadius(16)
@@ -109,13 +109,13 @@ struct RouteSelectionContainer: View {
             .padding(.trailing, 16)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(.appWhite))
+                    .fill(Color.white)
             )
            
             Button(action: onSwap) {
                 ZStack {
                     Circle()
-                        .fill(Color(.appWhite))
+                        .fill(Color.white)
                         .frame(width: 36, height: 36)
                     
                     Image(systemName: "arrow.2.squarepath")
@@ -139,7 +139,6 @@ struct RouteFieldButton: View {
     let label: String
     let station: Station?
     let action: () -> Void
-    
     private var displayText: String {
         guard let station = station else {
             return label
@@ -157,7 +156,7 @@ struct RouteFieldButton: View {
             HStack {
                 Text(displayText)
                     .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(station != nil ? Color(.appBlack) : Color(.appGray))
+                    .foregroundColor(station != nil ? Color.black : Color(.appGray))
                     .tracking(-0.41)
                     .lineLimit(1)
                     .truncationMode(.tail)

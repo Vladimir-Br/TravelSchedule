@@ -86,7 +86,7 @@ struct FiltersView: View {
                     Button(action: applyFilters) {
                         Text("Применить")
                             .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(Color(.appWhite))
+                            .foregroundColor(Color(.white))
                             .frame(maxWidth: .infinity)
                             .frame(height: 60)
                             .background(Color(.appBlue))

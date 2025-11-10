@@ -3,7 +3,6 @@ import SwiftUI
 
 struct ScheduleCellView: View {
     let schedule: Schedule
-    @Environment(\.colorScheme) private var colorScheme
     
     private static let durationFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -34,13 +33,8 @@ struct ScheduleCellView: View {
         Self.dateFormatter.string(from: schedule.departureTime)
     }
     
-    private var backgroundColor: Color {
-        colorScheme == .dark ? Color(.appGray) : Color(.appLightGray)
-    }
-
-    private var separatorColor: Color {
-        colorScheme == .dark ? Color(.appLightGray) : Color(.appGray)
-    }
+    private let backgroundColor: Color = Color(.appLightGray)
+    private let separatorColor: Color = Color(.appGray)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -70,7 +64,7 @@ private extension ScheduleCellView {
             VStack(alignment: .leading, spacing: 2) {
                 Text(schedule.carrierTitle)
                     .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(Color(.appBlack))
+                    .foregroundColor(.black)
                     .tracking(-0.41)
                 
                 if schedule.hasTransfers, let transferCity = schedule.transferCity {
@@ -85,7 +79,7 @@ private extension ScheduleCellView {
             
             Text(dateText)
                 .font(.system(size: 12, weight: .regular))
-                .foregroundColor(Color(.appBlack))
+                .foregroundColor(.black)
                 .tracking(0.4)
         }
     }
@@ -94,14 +88,14 @@ private extension ScheduleCellView {
         HStack(spacing: 4) {
             Text(departureTimeText)
                 .font(.system(size: 17, weight: .regular))
-                .foregroundColor(Color(.appBlack))
+                .foregroundColor(.black)
                 .tracking(-0.41)
             
             separator
             
             Text(durationText)
                 .font(.system(size: 12, weight: .regular))
-                .foregroundColor(Color(.appBlack))
+                .foregroundColor(.black)
                 .tracking(0.4)
                 .fixedSize()
                 .multilineTextAlignment(.center)
@@ -110,7 +104,7 @@ private extension ScheduleCellView {
             
             Text(arrivalTimeText)
                 .font(.system(size: 17, weight: .regular))
-                .foregroundColor(Color(.appBlack))
+                .foregroundColor(.black)
                 .tracking(-0.41)
         }
     }

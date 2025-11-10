@@ -92,6 +92,10 @@ struct ScheduleView: View {
 }
 
 private extension ScheduleView {
+    var hasActiveFilters: Bool {
+        !viewModel.selectedDepartureFilters.isEmpty || viewModel.includeTransfers != nil
+    }
+    
     var filterButton: some View {
         Button(action: {
             isShowingFilters = true
@@ -99,11 +103,13 @@ private extension ScheduleView {
             HStack(spacing: 4) {
                 Text("Уточнить время")
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(Color(.appWhite))
-
-                Circle()
-                    .fill(Color(.appRed))
-                    .frame(width: 8, height: 8)
+                    .foregroundColor(.white)
+                
+                if hasActiveFilters {
+                    Circle()
+                        .fill(Color(.appRed))
+                        .frame(width: 8, height: 8)
+                }
             }
             .frame(maxWidth: .infinity)
             .frame(height: 60)
@@ -113,7 +119,7 @@ private extension ScheduleView {
         .buttonStyle(.plain)
         .padding(.horizontal, 16)
         .padding(.bottom, 24)
-        .background(Color(.appWhite))
+        .background(Color.clear)
     }
 }
 
