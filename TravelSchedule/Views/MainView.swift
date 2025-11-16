@@ -8,9 +8,13 @@ struct MainView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Stories Placeholder
-                StoriesPlaceholder()
-               
+                StoriesSection(
+                    stories: viewModel.stories,
+                    onStoryTap: { index in
+                        viewModel.presentStory(at: index)
+                    }
+                )
+                
                 VStack(spacing: 16) {
                     RouteSelectionContainer(
                         fromStation: viewModel.fromStation,
@@ -49,7 +53,7 @@ struct MainView: View {
                 Spacer()
             }
         }
-        .background(Color(.appWhite))
+.background(Color(.appWhite))
         .fullScreenCover(item: $selectionType) { type in
             CitySelectionView(
                 selectionType: type,
@@ -64,21 +68,6 @@ struct MainView: View {
                 }
             )
         }
-    }
-}
-
-// MARK: - Stories Placeholder
-
-struct StoriesPlaceholder: View {
-    var body: some View {
-        VStack {
-            Text("Здесь будут сторис")
-                .font(.system(size: 17))
-                .foregroundColor(Color(.appGray))
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 188)
-        .background(Color(.appWhite))
     }
 }
 
@@ -130,6 +119,24 @@ struct RouteSelectionContainer: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(.appBlue))
         )
+    }
+}
+
+// MARK: - Stories Section
+
+private struct StoriesSection: View {
+    let stories: [Story]
+    let onStoryTap: (Int) -> Void
+    
+    var body: some View {
+        VStack {
+            StoriesView(
+                stories: stories,
+                onStoryTap: onStoryTap
+            )
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 188)
     }
 }
 
