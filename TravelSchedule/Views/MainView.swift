@@ -53,7 +53,7 @@ struct MainView: View {
                 Spacer()
             }
         }
-.background(Color(.appWhite))
+        .background(Color(.appWhite))
         .fullScreenCover(item: $selectionType) { type in
             CitySelectionView(
                 selectionType: type,
@@ -66,6 +66,13 @@ struct MainView: View {
                     }
                     selectionType = nil
                 }
+            )
+        }
+        
+        .fullScreenCover(isPresented: $viewModel.isStoriesPresented) {
+            StoriesFullScreenView(
+                stories: $viewModel.stories,
+                currentIndex: viewModel.selectedStoryIndex
             )
         }
     }
