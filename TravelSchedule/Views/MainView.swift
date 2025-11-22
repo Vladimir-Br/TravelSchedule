@@ -71,8 +71,12 @@ struct MainView: View {
         
         .fullScreenCover(isPresented: $viewModel.isStoriesPresented) {
             StoriesFullScreenView(
-                stories: $viewModel.stories,
-                currentIndex: viewModel.selectedStoryIndex
+                stories: viewModel.stories,
+                startIndex: viewModel.selectedStoryIndex,
+                storiesService: nil, // Пока nil, потом передадим реальный сервис
+                onStoriesUpdated: { updatedStories in
+                    viewModel.updateStoriesAfterViewing(updatedStories)
+                }
             )
         }
     }

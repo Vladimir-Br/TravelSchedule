@@ -41,27 +41,14 @@ struct SettingsView: View {
     }
     
     private func darkThemeRow(isDarkMode: Binding<Bool>) -> some View {
-        HStack(spacing: 0) {
-            VStack {
-                Text("Темная тема")
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(Color(.appBlack))
-                    .tracking(-0.41)
-                    .frame(height: 22)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 19)
-            }
-            .frame(height: 60)
-            
-            Spacer()
-            
-            Toggle("", isOn: isDarkMode)
-                .tint(Color(.appBlue))
-                .padding(.trailing, 16)
-        }
-        .frame(height: 60)
-        .padding(.leading, 16)
-        .background(Color(.appWhite))
+        Toggle("Темная тема", isOn: isDarkMode)
+            .font(.system(size: 17, weight: .regular))
+            .foregroundColor(Color(.appBlack))
+            .tracking(-0.41)
+            .tint(Color(.appBlue))
+            .frame(minHeight: 60)
+            .padding(.horizontal, 16)
+            .background(Color(.appWhite))
     }
     
     private var userAgreementRow: some View {

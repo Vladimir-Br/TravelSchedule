@@ -1,23 +1,86 @@
-
 import SwiftUI
-import Combine
+
+// MARK: - StoriesFullScreenView
 
 struct StoriesFullScreenView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var stories: [Story]
+    @State private var viewModel: StoriesFullScreenViewModel
     
-    @State var currentIndex: Int
-    @State private var progress: CGFloat = 0
-    @State private var timer: AnyCancellable?
+    let stories: [Story]
+    let startIndex: Int
+    let storiesService: StoriesServiceProtocol?
+    let onStoriesUpdated: ([Story]) -> Void
     
-    private let secondsPerStory: TimeInterval = 10
-    private let tick: TimeInterval = 0.05
-    private var progressPerTick: CGFloat {
-        guard stories.count > 0 else { return 0 }
-        return CGFloat(1.0) / CGFloat(stories.count) / CGFloat(secondsPerStory) * CGFloat(tick)
+    init(
+        stories: [Story],
+        startIndex: Int,
+        storiesService: StoriesServiceProtocol? = nil,
+        onStoriesUpdated: @escaping ([Story]) -> Void
+    ) {
+        self.stories = stories
+        self.startIndex = startIndex
+        self.storiesService = storiesService
+        self.onStoriesUpdated = onStoriesUpdated
+        
+        _viewModel = State(
+            wrappedValue: StoriesFullScreenViewModel(
+                storiesService: storiesService,
+                initialStories: stories,
+                startIndex: startIndex,
+                onStoriesUpdated: onStoriesUpdated
+            )
+        )
     }
     
     var body: some View {
+        Group {
+            if viewModel.isLoading {
+                loadingView
+            } else if let error = viewModel.error {
+                errorView(error: error)
+            } else {
+                storiesContentView
+            }
+        }
+        .task {
+            await viewModel.loadStories()
+        }
+    }
+    
+    // MARK: - Subviews
+    
+    private var loadingView: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            ProgressView()
+                .tint(.white)
+        }
+    }
+    
+    private func errorView(error: Error) -> some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 16) {
+                Text("Ошибка загрузки")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                Text(error.localizedDescription)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.7))
+                Button("Закрыть") {
+                    dismissWithUpdate()
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color(.appBlue))
+                .foregroundColor(.white)
+                .cornerRadius(12)
+            }
+            .padding()
+        }
+    }
+    
+    private var storiesContentView: some View {
         ZStack(alignment: .topTrailing) {
             Color.black.ignoresSafeArea()
             
@@ -25,19 +88,27 @@ struct StoriesFullScreenView: View {
                 Spacer().frame(height: 7)
                 
                 ZStack(alignment: .topTrailing) {
-                    TabView(selection: $currentIndex) {
-                        ForEach(Array(stories.enumerated()), id: \.offset) { index, story in
+                    TabView(selection: $viewModel.currentIndex) {
+                        ForEach(Array(viewModel.stories.enumerated()), id: \.offset) { index, story in
                             StoryPage(story: story)
                                 .tag(index)
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
+                    .onChange(of: viewModel.shouldDismiss) { _, shouldDismiss in
+                        if shouldDismiss {
+                            dismissWithUpdate()
+                        }
+                    }
                     
-                    ProgressBar(numberOfSections: stories.count, progress: progress)
-                        .padding(.top, 28)
-                        .padding(.horizontal, 12)
+                    ProgressBar(
+                        numberOfSections: viewModel.stories.count,
+                        progress: viewModel.progress
+                    )
+                    .padding(.top, 28)
+                    .padding(.horizontal, 12)
                     
-                    Button(action: { dismiss() }) {
+                    Button(action: dismissWithUpdate) {
                         Image("CloseButton")
                             .renderingMode(.original)
                             .frame(width: 30, height: 30)
@@ -49,83 +120,42 @@ struct StoriesFullScreenView: View {
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 40, style: .continuous))
                 .contentShape(Rectangle())
-                .onTapGesture { goNext() }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onEnded { value in
+                            let dragDistance = abs(value.translation.width)
+                            
+                            guard dragDistance < 15 else {
+                                guard value.translation.width < 0, viewModel.currentIndex == viewModel.stories.count - 1 else { return }
+                                viewModel.nextStory()
+                                return
+                            }
+                            
+                            viewModel.nextStory()
+                        }
+                )
                 
                 Spacer().frame(height: 17)
             }
         }
         .onAppear {
-            startTimer()
+            viewModel.startTimer()
         }
         .onDisappear {
-            timer?.cancel()
-        }
-       
-        .onChange(of: currentIndex) { oldIndex, _ in
-            if stories.indices.contains(oldIndex) {
-                stories[oldIndex].isViewed = true
-            }
-            withAnimation { progress = sectionStart() }
+            viewModel.stopTimer()
+            dismissWithUpdate()
         }
     }
     
-    // MARK: - Timer
+    // MARK: - Helpers
     
-    private func startTimer() {
-        timer?.cancel()
-        
-        progress = sectionStart()
-        timer = Timer.publish(every: tick, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in timerTick() }
-    }
-    
-    private func timerTick() {
-        
-        let end = sectionEnd()
-        let next = progress + progressPerTick
-        if next >= end {
-            goNext()
-            return
-        }
-        withAnimation(.linear(duration: tick)) {
-            progress = next
-        }
-    }
-    
-    private func sectionStart() -> CGFloat {
-        guard stories.count > 0 else { return 0 }
-        return CGFloat(currentIndex) / CGFloat(stories.count)
-    }
-    
-    private func sectionEnd() -> CGFloat {
-        guard stories.count > 0 else { return 1 }
-        return CGFloat(min(currentIndex + 1, stories.count)) / CGFloat(stories.count)
-    }
-    
-    // MARK: - Navigation
-    
-    private func goNext() {
-        if stories.indices.contains(currentIndex) {
-            stories[currentIndex].isViewed = true
-        }
-        if currentIndex < stories.count - 1 {
-            currentIndex += 1
-            withAnimation { progress = sectionStart() }
-        } else {
-            dismiss()
-        }
-    }
-    
-    private func goPrev() {
-        if currentIndex > 0 {
-            currentIndex -= 1
-            withAnimation { progress = sectionStart() }
-        } else {
-            dismiss()
-        }
+    private func dismissWithUpdate() {
+        onStoriesUpdated(viewModel.stories)
+        dismiss()
     }
 }
+
+// MARK: - StoryPage
 
 private struct StoryPage: View {
     let story: Story
@@ -143,12 +173,12 @@ private struct StoryPage: View {
                     Text(story.title)
                         .font(.system(size: 34, weight: .bold))
                         .foregroundColor(.white)
-                    .lineLimit(2)
+                        .lineLimit(2)
                     
                     Text(story.description)
                         .font(.system(size: 20, weight: .regular))
                         .foregroundColor(.white)
-                    .tracking(0.4)
+                        .tracking(0.4)
                         .lineLimit(3)
                 }
                 .padding(.horizontal, 16)
@@ -159,7 +189,7 @@ private struct StoryPage: View {
     }
 }
 
-// MARK: - ProgressBar with mask
+// MARK: - ProgressBar
 
 private struct ProgressBar: View {
     let numberOfSections: Int
@@ -169,6 +199,7 @@ private struct ProgressBar: View {
         GeometryReader { geometry in
             let safeCount = max(numberOfSections, 1)
             let clamped = max(0, min(progress, 1))
+            
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 3)
                     .frame(width: geometry.size.width, height: 6)
@@ -191,6 +222,7 @@ private struct ProgressBar: View {
 
 private struct MaskView: View {
     let numberOfSections: Int
+    
     var body: some View {
         HStack(spacing: 6) {
             ForEach(0..<numberOfSections, id: \.self) { _ in
@@ -208,5 +240,9 @@ private struct MaskFragmentView: View {
 }
 
 #Preview {
-    StoriesFullScreenView(stories: .constant(Story.previewStories), currentIndex: 0)
+    StoriesFullScreenView(
+        stories: Story.previewStories,
+        startIndex: 0,
+        onStoriesUpdated: { _ in }
+    )
 }
