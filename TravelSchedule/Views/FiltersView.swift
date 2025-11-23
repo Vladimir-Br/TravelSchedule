@@ -1,5 +1,4 @@
 
-
 import SwiftUI
 
 // MARK: - SelectionStyle
@@ -59,8 +58,7 @@ struct FiltersView: View {
     @Binding var selectedFilters: Set<DepartureFilter>
     @Environment(\.dismiss) private var dismiss
     
-    @State private var tempIncludeTransfers: Bool?
-    @State private var tempSelectedFilters: Set<DepartureFilter>
+    @State private var viewModel: FiltersViewModel?
     
     init(
         includeTransfers: Binding<Bool?>,
@@ -68,12 +66,6 @@ struct FiltersView: View {
     ) {
         self._includeTransfers = includeTransfers
         self._selectedFilters = selectedFilters
-        self._tempIncludeTransfers = State(initialValue: includeTransfers.wrappedValue)
-        self._tempSelectedFilters = State(initialValue: selectedFilters.wrappedValue)
-    }
-    
-    private var isApplyVisible: Bool {
-        tempIncludeTransfers != nil || !tempSelectedFilters.isEmpty
     }
 
     var body: some View {
@@ -82,18 +74,7 @@ struct FiltersView: View {
                 departureSection
                 transfersSection
                 
-                if isApplyVisible {
-                    Button(action: applyFilters) {
-                        Text("Применить")
-                            .font(.system(size: 17, weight: .bold))
-                            .foregroundColor(Color(.white))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(Color(.appBlue))
-                            .cornerRadius(16)
-                    }
-                    .padding(.top, 8)
-                }
+                applyButton
             }
             .padding(.horizontal, 16)
             .padding(.top, 24)
@@ -111,69 +92,86 @@ struct FiltersView: View {
                 .buttonStyle(.plain)
             }
         }
+        .onAppear {
+            guard viewModel == nil else { return }
+            let currentIncludeTransfers: Bool? = _includeTransfers.wrappedValue
+            let currentSelectedFilters: Set<DepartureFilter> = _selectedFilters.wrappedValue
+            viewModel = FiltersViewModel(
+                includeTransfers: currentIncludeTransfers,
+                selectedFilters: currentSelectedFilters
+            )
+        }
     }
 
+    @ViewBuilder
     private var departureSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Время отправления")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(Color(.appBlack))
+        if let viewModel = viewModel {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Время отправления")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color(.appBlack))
 
-            VStack(spacing: 0) {
-                ForEach([DepartureFilter.morning, .afternoon, .evening, .night], id: \.self) { filter in
-                    SelectableRow(
-                        title: filter.title,
-                        isSelected: tempSelectedFilters.contains(filter),
-                        style: .checkbox,
-                        action: { toggleFilter(filter) }
-                    )
+                VStack(spacing: 0) {
+                    ForEach([DepartureFilter.morning, .afternoon, .evening, .night], id: \.self) { filter in
+                        SelectableRow(
+                            title: filter.title,
+                            isSelected: viewModel.tempSelectedFilters.contains(filter),
+                            style: .checkbox,
+                            action: { viewModel.toggleFilter(filter) }
+                        )
+                    }
                 }
             }
         }
     }
 
+    @ViewBuilder
     private var transfersSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Показывать варианты с пересадками")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(Color(.appBlack))
+        if let viewModel = viewModel {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Показывать варианты с пересадками")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color(.appBlack))
 
-            VStack(spacing: 0) {
-                SelectableRow(
-                    title: "Да",
-                    isSelected: tempIncludeTransfers == true,
-                    style: .radio,
-                    action: { toggleTransfers(true) }
-                )
-                SelectableRow(
-                    title: "Нет",
-                    isSelected: tempIncludeTransfers == false,
-                    style: .radio,
-                    action: { toggleTransfers(false) }
-                )
+                VStack(spacing: 0) {
+                    SelectableRow(
+                        title: "Да",
+                        isSelected: viewModel.tempIncludeTransfers == true,
+                        style: .radio,
+                        action: { viewModel.toggleTransfers(true) }
+                    )
+                    SelectableRow(
+                        title: "Нет",
+                        isSelected: viewModel.tempIncludeTransfers == false,
+                        style: .radio,
+                        action: { viewModel.toggleTransfers(false) }
+                    )
+                }
             }
         }
     }
+    
+    @ViewBuilder
+    private var applyButton: some View {
+        if let viewModel = viewModel, viewModel.isApplyVisible {
+            Button(action: applyFilters) {
+                Text("Применить")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(Color(.white))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color(.appBlue))
+                    .cornerRadius(16)
+            }
+            .padding(.top, 8)
+        }
+    }
 
-    private func toggleFilter(_ filter: DepartureFilter) {
-        if tempSelectedFilters.contains(filter) {
-            tempSelectedFilters.remove(filter)
-        } else {
-            tempSelectedFilters.insert(filter)
-        }
-    }
-    
-    private func toggleTransfers(_ value: Bool) {
-        if tempIncludeTransfers == value {
-            tempIncludeTransfers = nil
-        } else {
-            tempIncludeTransfers = value
-        }
-    }
-    
     private func applyFilters() {
-        selectedFilters = tempSelectedFilters
-        includeTransfers = tempIncludeTransfers
+        guard let viewModel else { return }
+        let result = viewModel.applyFilters()
+        selectedFilters = result.selectedFilters
+        includeTransfers = result.includeTransfers
         dismiss()
     }
 }

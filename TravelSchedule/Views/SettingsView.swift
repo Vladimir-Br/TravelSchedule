@@ -107,14 +107,9 @@ private struct UserAgreementView: View {
         ScrollView {
             VStack {
                 Text("Пользовательское соглашение")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundColor(Color(.appBlack))
                     .padding(.top, 24)
-                
-                Text("Будет реализовано в следующем спринте")
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(Color(.appGray))
-                    .padding(.top, 16)
             }
             .padding(.horizontal, 16)
         }
