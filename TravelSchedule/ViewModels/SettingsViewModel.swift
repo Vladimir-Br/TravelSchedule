@@ -18,9 +18,7 @@ final class SettingsViewModel {
         }
     }
     
-    init() {
-        self.isDarkMode = userDefaults.bool(forKey: Self.isDarkModeKey)
-    }
+    // MARK: - Computed Properties
     
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -32,5 +30,11 @@ final class SettingsViewModel {
     
     var fullVersion: String {
         "Версия \(appVersion) (beta)"
+    }
+    
+    // MARK: - Initialization
+    
+    init() {
+        self.isDarkMode = userDefaults.bool(forKey: Self.isDarkModeKey)
     }
 }

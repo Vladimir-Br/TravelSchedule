@@ -106,6 +106,12 @@ final class StoriesFullScreenViewModel {
         currentIndex -= 1
     }
     
+    func finishViewing() {
+        stopTimer()
+        onStoriesUpdated(stories)
+        shouldDismiss = true
+    }
+    
     // MARK: - Private Methods - Timer Logic
     
     private func timerTick() {
@@ -155,11 +161,5 @@ final class StoriesFullScreenViewModel {
     private func ensureStoriesNotEmpty() {
         guard stories.isEmpty else { return }
         stories = Story.previewStories
-    }
-    
-    func finishViewing() {
-        stopTimer()
-        onStoriesUpdated(stories)
-        shouldDismiss = true
     }
 }

@@ -12,7 +12,7 @@ struct CarrierCardView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: .zero) {
                     VStack(spacing: 16) {
                         logoView
                             .padding(.horizontal, 16)

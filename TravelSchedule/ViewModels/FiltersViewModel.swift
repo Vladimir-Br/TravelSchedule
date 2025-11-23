@@ -8,6 +8,12 @@ final class FiltersViewModel {
     var tempIncludeTransfers: Bool?
     var tempSelectedFilters: Set<DepartureFilter> = []
     
+    // MARK: - Computed Properties
+    
+    var isApplyVisible: Bool {
+        tempIncludeTransfers != nil || !tempSelectedFilters.isEmpty
+    }
+    
     // MARK: - Initialization
     
     init(
@@ -16,12 +22,6 @@ final class FiltersViewModel {
     ) {
         self.tempIncludeTransfers = includeTransfers
         self.tempSelectedFilters = selectedFilters
-    }
-    
-    // MARK: - Computed Properties
-    
-    var isApplyVisible: Bool {
-        tempIncludeTransfers != nil || !tempSelectedFilters.isEmpty
     }
     
     // MARK: - Methods
