@@ -4,6 +4,7 @@ import UIKit
 
 @main
 struct TravelScheduleApp: App {
+    @State private var settingsViewModel = SettingsViewModel()
     
     init() {
         setupTabBarAppearance()
@@ -23,7 +24,7 @@ struct TravelScheduleApp: App {
                 .tag(0)
                 
                 NavigationStack {
-                    SettingsView()
+                    SettingsView(viewModel: settingsViewModel)
                 }
                 .tabItem {
                     Image(.settings)
@@ -33,6 +34,7 @@ struct TravelScheduleApp: App {
                 .tag(1)
             }
             .tint(Color(.appBlack))
+            .preferredColorScheme(settingsViewModel.isDarkMode ? .dark : .light)
         }
     }
     

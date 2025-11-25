@@ -8,9 +8,13 @@ struct MainView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Stories Placeholder
-                StoriesPlaceholder()
-               
+                StoriesSection(
+                    stories: viewModel.stories,
+                    onStoryTap: { index in
+                        viewModel.presentStory(at: index)
+                    }
+                )
+                
                 VStack(spacing: 16) {
                     RouteSelectionContainer(
                         fromStation: viewModel.fromStation,
@@ -64,21 +68,17 @@ struct MainView: View {
                 }
             )
         }
-    }
-}
-
-// MARK: - Stories Placeholder
-
-struct StoriesPlaceholder: View {
-    var body: some View {
-        VStack {
-            Text("Здесь будут сторис")
-                .font(.system(size: 17))
-                .foregroundColor(Color(.appGray))
+        
+        .fullScreenCover(isPresented: $viewModel.isStoriesPresented) {
+            StoriesFullScreenView(
+                stories: viewModel.stories,
+                startIndex: viewModel.selectedStoryIndex,
+                storiesService: nil, // Пока nil, потом передадим реальный сервис
+                onStoriesUpdated: { updatedStories in
+                    viewModel.updateStoriesAfterViewing(updatedStories)
+                }
+            )
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 188)
-        .background(Color(.appWhite))
     }
 }
 
@@ -130,6 +130,24 @@ struct RouteSelectionContainer: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color(.appBlue))
         )
+    }
+}
+
+// MARK: - Stories Section
+
+private struct StoriesSection: View {
+    let stories: [Story]
+    let onStoryTap: (Int) -> Void
+    
+    var body: some View {
+        VStack {
+            StoriesView(
+                stories: stories,
+                onStoryTap: onStoryTap
+            )
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 188)
     }
 }
 
