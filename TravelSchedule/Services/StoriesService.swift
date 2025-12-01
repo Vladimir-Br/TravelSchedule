@@ -5,14 +5,14 @@ import OpenAPIURLSession
 
 // MARK: - StoriesServiceProtocol
 
-protocol StoriesServiceProtocol {
+protocol StoriesServiceProtocol: Sendable {
     func getStories() async throws -> [Story]
     func markStoryAsViewed(id: Int) async throws
 }
 
 // MARK: - StoriesService
 
-final class StoriesService: StoriesServiceProtocol {
+actor StoriesService: StoriesServiceProtocol {
     
     // MARK: - Properties
     

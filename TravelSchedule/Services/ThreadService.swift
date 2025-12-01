@@ -5,7 +5,7 @@ import OpenAPIURLSession
 
 typealias ThreadStations = Components.Schemas.ThreadStationsResponse
 
-protocol ThreadServiceProtocol {
+protocol ThreadServiceProtocol: Sendable {
     func getRouteStations(
         uid: String,
         from: String?,
@@ -17,7 +17,7 @@ protocol ThreadServiceProtocol {
     ) async throws -> ThreadStations
 }
 
-final class ThreadService: ThreadServiceProtocol {
+actor ThreadService: ThreadServiceProtocol {
     private let client: Client
     private let apikey: String
 
