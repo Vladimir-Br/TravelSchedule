@@ -1,7 +1,7 @@
 
 import Foundation
 
-struct Schedule: Identifiable, Hashable {
+struct Schedule: Identifiable, Hashable, Sendable {
     let id: String
     let fromStationCode: String
     let toStationCode: String
