@@ -66,7 +66,7 @@ struct ScheduleView: View {
         LazyVStack(spacing: 8) {
             ForEach(viewModel.filteredSchedules) { schedule in
                 NavigationLink {
-                    CarrierCardView()
+                    CarrierCardView(carrierCode: schedule.carrierTitle)
                 } label: {
                     ScheduleCellView(schedule: schedule)
                 }

@@ -5,35 +5,46 @@ import SwiftUI
 
 struct CarrierCardView: View {
     @Environment(\.dismiss) private var dismiss
-
+    @State private var viewModel: CarrierCardViewModel
+    
+    init(carrierCode: String) {
+        _viewModel = State(initialValue: CarrierCardViewModel(carrierCode: carrierCode))
+    }
+    
     var body: some View {
         ZStack {
             Color(.appWhite)
                 .ignoresSafeArea()
-
+            
             ScrollView {
                 VStack(spacing: .zero) {
                     VStack(spacing: 16) {
                         logoView
                             .padding(.horizontal, 16)
                             .padding(.top, 16)
-
+                        
                         VStack(spacing: 16) {
-                            titleView
-                                .padding(.horizontal, 16)
-
-                            VStack(spacing: 4) {
-                                contactField(
-                                    label: "E-mail",
-                                    value: "i.lozgkina@yandex.ru",
-                                    valueColor: Color(.appBlue)
-                                )
-
-                                contactField(
-                                    label: "Телефон",
-                                    value: "+7 (904) 329-27-71",
-                                    valueColor: Color(.appBlue)
-                                )
+                            if let carrier = viewModel.carrier {
+                                titleView(carrier: carrier)
+                                    .padding(.horizontal, 16)
+                                
+                                VStack(spacing: 4) {
+                                    if let email = carrier.email {
+                                        contactField(
+                                            label: "E-mail",
+                                            value: email,
+                                            valueColor: Color(.appBlue)
+                                        )
+                                    }
+                                    
+                                    if let phone = carrier.phone {
+                                        contactField(
+                                            label: "Телефон",
+                                            value: phone,
+                                            valueColor: Color(.appBlue)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -53,10 +64,13 @@ struct CarrierCardView: View {
                 }
             }
         }
+        .task {
+            await viewModel.loadCarrier()
+        }
     }
-
+    
     // MARK: - Subviews
-
+    
     private var logoView: some View {
         Image("RailwayBigLogo")
             .resizable()
@@ -64,9 +78,9 @@ struct CarrierCardView: View {
             .frame(width: 343, height: 104)
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
-
-    private var titleView: some View {
-        Text("ОАО «РЖД»")
+    
+    private func titleView(carrier: Carrier) -> some View {
+        Text(carrier.title)
             .font(.system(size: 24, weight: .bold))
             .foregroundColor(Color(.appBlack))
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -102,6 +116,6 @@ struct CarrierCardView: View {
 
 #Preview {
     NavigationStack {
-        CarrierCardView()
+        CarrierCardView(carrierCode: "RZD")
     }
 }
