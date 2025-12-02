@@ -34,6 +34,7 @@ enum DepartureFilter: CaseIterable, Hashable {
     }
 }
 
+@MainActor
 @Observable
 final class ScheduleViewModel {
     let fromStation: Station

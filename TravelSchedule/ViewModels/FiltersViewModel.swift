@@ -1,6 +1,7 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class FiltersViewModel {
     // MARK: - Properties

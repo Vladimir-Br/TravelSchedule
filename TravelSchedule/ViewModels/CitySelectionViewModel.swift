@@ -1,6 +1,7 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class CitySelectionViewModel {
     var searchQuery: String = ""
