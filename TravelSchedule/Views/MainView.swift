@@ -79,6 +79,9 @@ struct MainView: View {
                 }
             )
         }
+        .task {
+            await viewModel.loadStories()
+        }
     }
 }
 

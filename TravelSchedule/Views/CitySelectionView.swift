@@ -42,6 +42,9 @@ struct CitySelectionView: View {
                     }
                 }
             }
+            .task {
+                await viewModel.loadCities()
+            }
         }
     }
 

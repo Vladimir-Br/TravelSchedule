@@ -4,14 +4,55 @@ import Foundation
 @MainActor
 @Observable
 final class StationSelectionViewModel {
+    
+    // MARK: - Properties
+    
     var searchQuery: String = ""
     let city: City
+    private(set) var stations: [Station] = []
     
-    init(city: City) {
-        self.city = city
-    }
+    private let allStationsService: AllStationsServiceProtocol?
+    
+    // MARK: - Computed Properties
     
     var filteredStations: [Station] {
-        MockData.searchStations(query: searchQuery, cityCode: city.code)
+        guard !searchQuery.isEmpty else {
+            return stations
+        }
+        
+        let queryLowercased = searchQuery.lowercased()
+        return stations.filter { station in
+            station.title.lowercased().contains(queryLowercased)
+        }
+    }
+    
+    // MARK: - Initialization
+    
+    init(
+        city: City,
+        allStationsService: AllStationsServiceProtocol? = nil
+    ) {
+        self.city = city
+        self.allStationsService = allStationsService
+    }
+    
+    // MARK: - Public Methods
+    
+    func loadStations() async {
+        guard allStationsService != nil else {
+            // Если сервис не передан, используем мок-данные
+            loadMockStations()
+            return
+        }
+        
+        // TODO: Реализовать загрузку из API, когда будет готово
+        // Пока используем мок-данные
+        loadMockStations()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func loadMockStations() {
+        stations = MockData.getStations(for: city.code)
     }
 }

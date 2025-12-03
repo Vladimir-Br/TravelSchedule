@@ -46,6 +46,9 @@ struct StationSelectionView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .task {
+            await viewModel.loadStations()
+        }
     }
 }
 

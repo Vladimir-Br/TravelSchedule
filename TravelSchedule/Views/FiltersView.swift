@@ -84,7 +84,7 @@ struct FiltersView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    applyFiltersAndDismiss()
                 } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(Color(.appBlack))
@@ -172,6 +172,20 @@ struct FiltersView: View {
         let result = viewModel.applyFilters()
         selectedFilters = result.selectedFilters
         includeTransfers = result.includeTransfers
+        dismiss()
+    }
+    
+    private func applyFiltersAndDismiss() {
+        guard let viewModel else {
+            dismiss()
+            return
+        }
+        
+        if !viewModel.isApplyVisible {
+            let result = viewModel.applyFilters()
+            selectedFilters = result.selectedFilters
+            includeTransfers = result.includeTransfers
+        }
         dismiss()
     }
 }

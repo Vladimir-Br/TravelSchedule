@@ -41,6 +41,9 @@ struct ScheduleView: View {
                 selectedFilters: $viewModel.selectedDepartureFilters
             )
         }
+        .task {
+            await viewModel.loadSchedules()
+        }
     }
 
     @ViewBuilder
