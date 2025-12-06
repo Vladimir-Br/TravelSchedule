@@ -23,9 +23,8 @@ final class StationSelectionViewModel {
             return stations
         }
         
-        let queryLowercased = searchQuery.lowercased()
         return stations.filter { station in
-            station.title.lowercased().contains(queryLowercased)
+            station.title.localizedCaseInsensitiveContains(searchQuery)
         }
     }
     

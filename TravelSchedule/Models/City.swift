@@ -2,13 +2,8 @@
 import Foundation
 
 struct City: Identifiable, Hashable, Sendable {
-    let id: String
-    let title: String
     let code: String
+    let title: String
     
-    init(code: String, title: String) {
-        self.id = code
-        self.code = code
-        self.title = title
-    }
+    var id: String { code }
 }

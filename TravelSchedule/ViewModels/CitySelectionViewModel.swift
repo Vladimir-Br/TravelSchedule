@@ -22,9 +22,8 @@ final class CitySelectionViewModel {
             return cities
         }
         
-        let lowercasedQuery = searchQuery.lowercased()
         return cities.filter { city in
-            city.title.lowercased().contains(lowercasedQuery)
+            city.title.localizedCaseInsensitiveContains(searchQuery)
         }
     }
     

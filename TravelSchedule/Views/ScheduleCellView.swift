@@ -14,19 +14,15 @@ struct ScheduleCellView: View {
         return formatter
     }()
     
-    private static let timeFormatter = DateFormatter(format: "HH:mm")
-    private static let dateFormatter = DateFormatter(format: "d MMMM")
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMMM"
+        return formatter
+    }()
     
     private var durationText: String {
         Self.durationFormatter.string(from: schedule.duration) ?? ""
-    }
-    
-    private var departureTimeText: String {
-        Self.timeFormatter.string(from: schedule.departureTime)
-    }
-    
-    private var arrivalTimeText: String {
-        Self.timeFormatter.string(from: schedule.arrivalTime)
     }
     
     private var dateText: String {
@@ -111,7 +107,7 @@ private extension ScheduleCellView {
     
     var timelineRow: some View {
         HStack(spacing: 4) {
-            Text(departureTimeText)
+            Text(schedule.departureTime, format: .dateTime.hour().minute())
                 .font(.system(size: 17, weight: .regular))
                 .foregroundColor(.black)
                 .tracking(-0.41)
@@ -127,7 +123,7 @@ private extension ScheduleCellView {
             
             separator
             
-            Text(arrivalTimeText)
+            Text(schedule.arrivalTime, format: .dateTime.hour().minute())
                 .font(.system(size: 17, weight: .regular))
                 .foregroundColor(.black)
                 .tracking(-0.41)

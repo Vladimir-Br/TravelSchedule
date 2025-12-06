@@ -84,7 +84,7 @@ final class ScheduleViewModel {
             let service = try resolveService()
             try await fetchSchedules(service: service, date: currentDateString())
         } catch {
-            handleSearchError(error)
+            await handleSearchError(error)
         }
     }
     
@@ -123,19 +123,17 @@ final class ScheduleViewModel {
         errorType = nil
     }
     
-    private func handleSearchError(_ error: Error) {
+    private func handleSearchError(_ error: Error) async {
         let description = String(describing: error)
 
         if description.contains("statusCode: 404") {
-            Task { @MainActor in
-                do {
-                    let service = try resolveService()
-                    try await fetchSchedules(service: service, date: nil)
-                } catch {
-                    schedules = []
-                    filteredSchedules = []
-                    errorType = nil 
-                }
+            do {
+                let service = try resolveService()
+                try await fetchSchedules(service: service, date: nil)
+            } catch {
+                schedules = []
+                filteredSchedules = []
+                errorType = nil
             }
             return
         }

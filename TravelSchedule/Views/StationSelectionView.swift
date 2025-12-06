@@ -27,13 +27,13 @@ struct StationSelectionView: View {
             if let errorType = viewModel.errorType {
                 ErrorView(errorType: errorType)
             } else {
-                StationList(
-                    stations: viewModel.filteredStations,
-                    onSelect: { station in
-                        onStationSelected(station)
-                    }
-                )
-                .padding(.top, 16)
+            StationList(
+                stations: viewModel.filteredStations,
+                onSelect: { station in
+                    onStationSelected(station)
+                }
+            )
+            .padding(.top, 16)
             }
         }
         .background(Color(.appWhite))

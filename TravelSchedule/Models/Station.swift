@@ -2,19 +2,9 @@
 import Foundation
 
 struct Station: Identifiable, Hashable, Sendable {
-    let id: String
-    let title: String
     let code: String
-    let cityTitle: String?
+    let title: String
+    var cityTitle: String? = nil
     
-    init(
-        code: String,
-        title: String,
-        cityTitle: String? = nil
-    ) {
-        self.id = code
-        self.code = code
-        self.title = title
-        self.cityTitle = cityTitle
-    }
+    var id: String { code }
 }
