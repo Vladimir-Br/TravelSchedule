@@ -1,5 +1,7 @@
 
 import Foundation
+import OpenAPIRuntime
+import OpenAPIURLSession
 
 enum DepartureFilter: CaseIterable, Hashable {
     case morning
@@ -44,6 +46,7 @@ final class ScheduleViewModel {
     let toStation: Station
     
     private(set) var schedules: [Schedule] = []
+    private(set) var errorType: ErrorType?
     
     var selectedDepartureFilters: Set<DepartureFilter> = [] {
         didSet {
@@ -77,25 +80,136 @@ final class ScheduleViewModel {
     // MARK: - Public Methods
     
     func loadSchedules() async {
-        guard searchService != nil else {
-            // Если сервис не передан, используем мок-данные
-            loadMockSchedules()
-            return
+        do {
+            let service = try resolveService()
+            try await fetchSchedules(service: service, date: currentDateString())
+        } catch {
+            handleSearchError(error)
         }
-        
-        // TODO: Реализовать загрузку из API, когда будет готово
-        // Пока используем мок-данные
-        loadMockSchedules()
     }
     
     // MARK: - Private Methods
     
-    private func loadMockSchedules() {
-        schedules = MockData.getSchedules(
-            from: fromStation.code,
-            to: toStation.code
+    private func resolveService() throws -> SearchServiceProtocol {
+        if let searchService {
+            return searchService
+        }
+        
+        return SearchService(
+            client: Client(
+                serverURL: try Servers.Server1.url(),
+                transport: URLSessionTransport()
+            ),
+            apikey: APIKeys.yandexApiKey
         )
+    }
+    
+    private func fetchSchedules(
+        service: SearchServiceProtocol,
+        date: String?
+    ) async throws {
+        let response = try await service.getScheduleBetweenStations(
+            from: fromStation.code,
+            to: toStation.code,
+            date: date,
+            lang: "ru_RU",
+            format: "json",
+            transportTypes: nil,
+            offset: nil,
+            limit: nil
+        )
+        schedules = mapSchedules(from: response)
         applyFilters()
+        errorType = nil
+    }
+    
+    private func handleSearchError(_ error: Error) {
+        let description = String(describing: error)
+
+        if description.contains("statusCode: 404") {
+            Task { @MainActor in
+                do {
+                    let service = try resolveService()
+                    try await fetchSchedules(service: service, date: nil)
+                } catch {
+                    schedules = []
+                    filteredSchedules = []
+                    errorType = nil 
+                }
+            }
+            return
+        }
+        
+        errorType = mapError(error)
+        schedules = []
+        filteredSchedules = []
+    }
+    
+    private func currentDateString() -> String {
+        DateFormatter.scheduleDate.string(from: Date())
+    }
+    
+    private func mapSchedules(from response: SearchResults) -> [Schedule] {
+        let segments = response.segments ?? []
+        var result: [Schedule] = []
+        
+        for segment in segments {
+            guard
+                let fromCode = segment.from?.code ?? segment.from?.codes?.`yandex_code`,
+                let toCode = segment.to?.code ?? segment.to?.codes?.`yandex_code`,
+                let departureDate = parseDate(segment.departure),
+                let arrivalDate = parseDate(segment.arrival)
+            else {
+                continue
+            }
+            
+            let departureKey = segment.departure ?? UUID().uuidString
+            let id = (segment.thread?.uid ?? "segment") + "_" + departureKey
+            
+            let carrier = segment.thread?.carrier
+            let carrierTitle = carrier?.title ?? segment.thread?.title ?? "Перевозчик"
+            let carrierYandexCode = carrier?.code.map { String($0) }
+            let carrierLogo = carrier?.logo
+            let carrierPhone = carrier?.phone
+            let carrierEmail = carrier?.email
+            
+            let schedule = Schedule(
+                id: id,
+                fromStationCode: fromCode,
+                toStationCode: toCode,
+                departureTime: departureDate,
+                arrivalTime: arrivalDate,
+                carrierTitle: carrierTitle,
+                carrierCode: carrierYandexCode,
+                carrierLogo: carrierLogo,
+                carrierPhone: carrierPhone,
+                carrierEmail: carrierEmail,
+                hasTransfers: false,
+                transferCity: nil
+            )
+            result.append(schedule)
+        }
+        
+        return result
+    }
+    
+    private func parseDate(_ dateString: String?) -> Date? {
+        guard let dateString else { return nil }
+        
+        let withFraction = ISO8601DateFormatter.makeWithFraction()
+        if let date = withFraction.date(from: dateString) {
+            return date
+        }
+        
+        let noFraction = ISO8601DateFormatter.makeNoFraction()
+        return noFraction.date(from: dateString)
+    }
+    
+    private func mapError(_ error: Error) -> ErrorType {
+        if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
+            return .noInternet
+        }
+        return .serverError
     }
     
     private func applyFilters() {
@@ -115,5 +229,33 @@ final class ScheduleViewModel {
         
         let hour = calendar.component(.hour, from: schedule.departureTime)
         return selectedDepartureFilters.contains { $0.hourRange.contains(hour) }
+    }
+}
+
+// MARK: - Cached Formatters
+
+private extension DateFormatter {
+    static let scheduleDate: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = .current
+        return formatter
+    }()
+}
+
+private extension ISO8601DateFormatter {
+    static func makeWithFraction() -> ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [
+            .withInternetDateTime,
+            .withFractionalSeconds
+        ]
+        return formatter
+    }
+    
+    static func makeNoFraction() -> ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
     }
 }

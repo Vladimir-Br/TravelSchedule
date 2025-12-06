@@ -24,13 +24,17 @@ struct StationSelectionView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             
-            StationList(
-                stations: viewModel.filteredStations,
-                onSelect: { station in
-                    onStationSelected(station)
-                }
-            )
-            .padding(.top, 16)
+            if let errorType = viewModel.errorType {
+                ErrorView(errorType: errorType)
+            } else {
+                StationList(
+                    stations: viewModel.filteredStations,
+                    onSelect: { station in
+                        onStationSelected(station)
+                    }
+                )
+                .padding(.top, 16)
+            }
         }
         .background(Color(.appWhite))
         .navigationTitle("Выбор станции")

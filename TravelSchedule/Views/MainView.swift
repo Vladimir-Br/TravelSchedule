@@ -73,7 +73,7 @@ struct MainView: View {
             StoriesFullScreenView(
                 stories: viewModel.stories,
                 startIndex: viewModel.selectedStoryIndex,
-                storiesService: nil, // Пока nil, потом передадим реальный сервис
+                storiesService: nil,
                 onStoriesUpdated: { updatedStories in
                     viewModel.updateStoriesAfterViewing(updatedStories)
                 }
@@ -165,11 +165,11 @@ struct RouteFieldButton: View {
             return label
         }
         
-        if let city = MockData.getCity(for: station.code) {
-            return "\(city.title) (\(station.title))"
-        } else {
-            return station.title
+        if let cityTitle = station.cityTitle {
+            return "\(cityTitle) (\(station.title))"
         }
+        
+        return station.title
     }
     
     var body: some View {

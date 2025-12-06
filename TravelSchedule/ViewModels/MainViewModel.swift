@@ -32,7 +32,6 @@ final class MainViewModel {
     
     func loadStories() async {
         guard let service = storiesService else {
-            // Если сервис не передан, используем локальные данные
             loadLocalStories()
             return
         }
@@ -40,7 +39,6 @@ final class MainViewModel {
         do {
             stories = try await service.getStories()
         } catch {
-            // В случае ошибки используем локальные данные
             loadLocalStories()
         }
     }
@@ -84,7 +82,6 @@ final class MainViewModel {
     // MARK: - Private Methods
     
     private func loadLocalStories() {
-        // Загружаем сторис из локальных источников (соответствует ТЗ)
         stories = Story.previewStories
     }
 }

@@ -1,5 +1,7 @@
 
 import Foundation
+import OpenAPIRuntime
+import OpenAPIURLSession
 
 @MainActor
 @Observable
@@ -9,6 +11,7 @@ final class CitySelectionViewModel {
     
     var searchQuery: String = ""
     private(set) var cities: [City] = []
+    private(set) var errorType: ErrorType?
     
     private let allStationsService: AllStationsServiceProtocol?
     
@@ -38,20 +41,60 @@ final class CitySelectionViewModel {
     // MARK: - Public Methods
     
     func loadCities() async {
-        guard allStationsService != nil else {
-            // Если сервис не передан, используем мок-данные
-            loadMockCities()
-            return
+        do {
+            let service = try resolveService()
+            let response = try await service.getAllStations(
+                lang: "ru_RU",
+                format: "json"
+            )
+            cities = mapCities(from: response)
+            errorType = nil
+        } catch {
+            errorType = mapError(error)
+            cities = []
         }
-        
-        // TODO: Реализовать загрузку из API, когда будет готово
-        // Пока используем мок-данные
-        loadMockCities()
     }
     
     // MARK: - Private Methods
     
-    private func loadMockCities() {
-        cities = MockData.getAllCities()
+    private func resolveService() throws -> AllStationsServiceProtocol {
+        if let allStationsService {
+            return allStationsService
+        }
+        
+        return AllStationsService(
+            client: Client(
+                serverURL: try Servers.Server1.url(),
+                transport: URLSessionTransport()
+            ),
+            apikey: APIKeys.yandexApiKey
+        )
+    }
+    
+    private func mapCities(from response: AllStations) -> [City] {
+        let countries = (response.countries ?? []).filter { country in
+            let code = country.codes?.`yandex_code`?.uppercased()
+            return code == "RU" || country.title?.lowercased() == "россия"
+        }
+        let settlements = countries
+            .flatMap { $0.regions ?? [] }
+            .flatMap { $0.settlements ?? [] }
+        
+        var unique: [String: City] = [:]
+        
+        for settlement in settlements {
+            guard let code = settlement.codes?.`yandex_code` else { continue }
+            let city = City(code: code, title: settlement.title ?? code)
+            unique[code] = city 
+        }
+        
+        return Array(unique.values).sorted { $0.title < $1.title }
+    }
+    
+    private func mapError(_ error: Error) -> ErrorType {
+        if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
+            return .noInternet
+        }
+        return .serverError
     }
 }

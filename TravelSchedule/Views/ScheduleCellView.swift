@@ -56,10 +56,7 @@ struct ScheduleCellView: View {
 private extension ScheduleCellView {
     var headerRow: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(.railway)
-                .resizable()
-                .frame(width: 38, height: 38)
-                .cornerRadius(12)
+            carrierLogoView
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(schedule.carrierTitle)
@@ -81,6 +78,34 @@ private extension ScheduleCellView {
                 .font(.system(size: 12, weight: .regular))
                 .foregroundColor(.black)
                 .tracking(0.4)
+        }
+    }
+    
+    @ViewBuilder
+    var carrierLogoView: some View {
+        let logoURL = schedule.carrierLogo?.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if let logoURL,
+           !logoURL.isEmpty,
+           let url = URL(string: logoURL) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .empty, .failure:
+                    Color.gray.opacity(0.2)
+                @unknown default:
+                    Color.gray.opacity(0.2)
+                }
+            }
+            .frame(width: 38, height: 38)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            Color.gray.opacity(0.2)
+                .frame(width: 38, height: 38)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
     

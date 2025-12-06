@@ -48,7 +48,9 @@ struct ScheduleView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        if viewModel.filteredSchedules.isEmpty {
+        if let errorType = viewModel.errorType {
+            ErrorView(errorType: errorType)
+        } else if viewModel.filteredSchedules.isEmpty {
             emptyState
         } else {
             scheduleList
@@ -69,7 +71,12 @@ struct ScheduleView: View {
         LazyVStack(spacing: 8) {
             ForEach(viewModel.filteredSchedules) { schedule in
                 NavigationLink {
-                    CarrierCardView(carrierCode: schedule.carrierTitle)
+                    CarrierCardView(
+                        title: schedule.carrierTitle,
+                        logo: schedule.carrierLogo,
+                        phone: schedule.carrierPhone,
+                        email: schedule.carrierEmail
+                    )
                 } label: {
                     ScheduleCellView(schedule: schedule)
                 }
@@ -128,10 +135,8 @@ private extension ScheduleView {
 
 private extension Station {
     var displayTitle: String {
-        if let city = MockData.getCity(for: code) {
-            return "\(city.title) (\(title))"
-        }
-        return title
+        guard let cityTitle else { return title }
+        return "\(cityTitle) (\(title))"
     }
 }
 

@@ -50,7 +50,9 @@ struct CitySelectionView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        if viewModel.isEmpty {
+        if let errorType = viewModel.errorType {
+            ErrorView(errorType: errorType)
+        } else if viewModel.isEmpty {
             EmptyCityState()
         } else {
             CityList(
