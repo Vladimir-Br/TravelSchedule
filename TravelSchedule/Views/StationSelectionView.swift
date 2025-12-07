@@ -19,14 +19,25 @@ struct StationSelectionView: View {
     }
     
     var body: some View {
+        Group {
+            if let errorType = viewModel.errorType {
+                ErrorView(errorType: errorType)
+            } else {
+                normalContent
+            }
+        }
+        .task {
+            await viewModel.loadStations()
+        }
+    }
+    
+    @ViewBuilder
+    private var normalContent: some View {
         VStack(spacing: 0) {
             SearchBar(text: $viewModel.searchQuery)
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             
-            if let errorType = viewModel.errorType {
-                ErrorView(errorType: errorType)
-            } else {
             StationList(
                 stations: viewModel.filteredStations,
                 onSelect: { station in
@@ -34,7 +45,6 @@ struct StationSelectionView: View {
                 }
             )
             .padding(.top, 16)
-            }
         }
         .background(Color(.appWhite))
         .navigationTitle("Выбор станции")
@@ -50,9 +60,6 @@ struct StationSelectionView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .task {
-            await viewModel.loadStations()
-        }
     }
 }
 

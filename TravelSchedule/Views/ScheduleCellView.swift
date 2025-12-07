@@ -60,8 +60,8 @@ private extension ScheduleCellView {
                     .foregroundColor(.black)
                     .tracking(-0.41)
                 
-                if schedule.hasTransfers, let transferCity = schedule.transferCity {
-                    Text("С пересадкой в \(transferCity)")
+                if schedule.hasTransfers {
+                    Text(schedule.transferCity.map { "С пересадкой в \($0)" } ?? "С пересадкой")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(Color(.appRed))
                         .tracking(0.4)

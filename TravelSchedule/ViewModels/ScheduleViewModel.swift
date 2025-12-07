@@ -65,6 +65,30 @@ final class ScheduleViewModel {
     private let calendar = Calendar.current
     private let searchService: SearchServiceProtocol?
     
+    // MARK: - Formatters
+    
+    private let scheduleDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = .current
+        return formatter
+    }()
+    
+    private let isoFormatterWithFraction: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [
+            .withInternetDateTime,
+            .withFractionalSeconds
+        ]
+        return formatter
+    }()
+    
+    private let isoFormatterNoFraction: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+    
     // MARK: - Initialization
     
     init(
@@ -91,17 +115,17 @@ final class ScheduleViewModel {
     // MARK: - Private Methods
     
     private func resolveService() throws -> SearchServiceProtocol {
-        if let searchService {
-            return searchService
+        guard let searchService else {
+            return SearchService(
+                client: Client(
+                    serverURL: try Servers.Server1.url(),
+                    transport: URLSessionTransport()
+                ),
+                apikey: APIKeys.yandexApiKey
+            )
         }
         
-        return SearchService(
-            client: Client(
-                serverURL: try Servers.Server1.url(),
-                transport: URLSessionTransport()
-            ),
-            apikey: APIKeys.yandexApiKey
-        )
+        return searchService
     }
     
     private func fetchSchedules(
@@ -126,25 +150,25 @@ final class ScheduleViewModel {
     private func handleSearchError(_ error: Error) async {
         let description = String(describing: error)
 
-        if description.contains("statusCode: 404") {
-            do {
-                let service = try resolveService()
-                try await fetchSchedules(service: service, date: nil)
-            } catch {
-                schedules = []
-                filteredSchedules = []
-                errorType = nil
-            }
+        guard description.contains("statusCode: 404") else {
+            errorType = mapError(error)
+            schedules = []
+            filteredSchedules = []
             return
         }
         
-        errorType = mapError(error)
-        schedules = []
-        filteredSchedules = []
+        do {
+            let service = try resolveService()
+            try await fetchSchedules(service: service, date: nil)
+        } catch {
+            schedules = []
+            filteredSchedules = []
+            errorType = nil
+        }
     }
     
     private func currentDateString() -> String {
-        DateFormatter.scheduleDate.string(from: Date())
+        scheduleDateFormatter.string(from: Date())
     }
     
     private func mapSchedules(from response: SearchResults) -> [Schedule] {
@@ -182,7 +206,7 @@ final class ScheduleViewModel {
                 carrierLogo: carrierLogo,
                 carrierPhone: carrierPhone,
                 carrierEmail: carrierEmail,
-                hasTransfers: false,
+                hasTransfers: segment.tickets_info?.et_marker ?? false,
                 transferCity: nil
             )
             result.append(schedule)
@@ -194,20 +218,19 @@ final class ScheduleViewModel {
     private func parseDate(_ dateString: String?) -> Date? {
         guard let dateString else { return nil }
         
-        let withFraction = ISO8601DateFormatter.makeWithFraction()
-        if let date = withFraction.date(from: dateString) {
-            return date
+        guard let date = isoFormatterWithFraction.date(from: dateString) else {
+            return isoFormatterNoFraction.date(from: dateString)
         }
         
-        let noFraction = ISO8601DateFormatter.makeNoFraction()
-        return noFraction.date(from: dateString)
+        return date
     }
     
     private func mapError(_ error: Error) -> ErrorType {
-        if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
-            return .noInternet
+        guard let urlError = error as? URLError, urlError.code == .notConnectedToInternet else {
+            return .serverError
         }
-        return .serverError
+        
+        return .noInternet
     }
     
     private func applyFilters() {
@@ -227,33 +250,5 @@ final class ScheduleViewModel {
         
         let hour = calendar.component(.hour, from: schedule.departureTime)
         return selectedDepartureFilters.contains { $0.hourRange.contains(hour) }
-    }
-}
-
-// MARK: - Cached Formatters
-
-private extension DateFormatter {
-    static let scheduleDate: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = .current
-        return formatter
-    }()
-}
-
-private extension ISO8601DateFormatter {
-    static func makeWithFraction() -> ISO8601DateFormatter {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [
-            .withInternetDateTime,
-            .withFractionalSeconds
-        ]
-        return formatter
-    }
-    
-    static func makeNoFraction() -> ISO8601DateFormatter {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        return formatter
     }
 }

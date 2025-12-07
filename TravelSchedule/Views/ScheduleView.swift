@@ -11,10 +11,35 @@ struct ScheduleView: View {
     }
 
     var body: some View {
+        Group {
+            if let errorType = viewModel.errorType {
+                ErrorView(errorType: errorType)
+            } else {
+                normalContent
+            }
+        }
+        .toolbar(viewModel.errorType == nil ? .hidden : .visible, for: .tabBar)
+        .navigationDestination(isPresented: $isShowingFilters) {
+            FiltersView(
+                includeTransfers: $viewModel.includeTransfers,
+                selectedFilters: $viewModel.selectedDepartureFilters
+            )
+        }
+        .task {
+            await viewModel.loadSchedules()
+        }
+    }
+    
+    @ViewBuilder
+    private var normalContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 16) {
                 header
-                contentView
+                if viewModel.filteredSchedules.isEmpty {
+                    emptyState
+                } else {
+                    scheduleList
+                }
             }
             .padding(.top, 16)
         }
@@ -33,27 +58,6 @@ struct ScheduleView: View {
                         .foregroundColor(Color(.appBlack))
                 }
             }
-        }
-        .toolbar(.hidden, for: .tabBar)
-        .navigationDestination(isPresented: $isShowingFilters) {
-            FiltersView(
-                includeTransfers: $viewModel.includeTransfers,
-                selectedFilters: $viewModel.selectedDepartureFilters
-            )
-        }
-        .task {
-            await viewModel.loadSchedules()
-        }
-    }
-
-    @ViewBuilder
-    private var contentView: some View {
-        if let errorType = viewModel.errorType {
-            ErrorView(errorType: errorType)
-        } else if viewModel.filteredSchedules.isEmpty {
-            emptyState
-        } else {
-            scheduleList
         }
     }
 

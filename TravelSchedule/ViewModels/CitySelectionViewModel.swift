@@ -57,17 +57,17 @@ final class CitySelectionViewModel {
     // MARK: - Private Methods
     
     private func resolveService() throws -> AllStationsServiceProtocol {
-        if let allStationsService {
-            return allStationsService
+        guard let allStationsService else {
+            return AllStationsService(
+                client: Client(
+                    serverURL: try Servers.Server1.url(),
+                    transport: URLSessionTransport()
+                ),
+                apikey: APIKeys.yandexApiKey
+            )
         }
         
-        return AllStationsService(
-            client: Client(
-                serverURL: try Servers.Server1.url(),
-                transport: URLSessionTransport()
-            ),
-            apikey: APIKeys.yandexApiKey
-        )
+        return allStationsService
     }
     
     private func mapCities(from response: AllStations) -> [City] {

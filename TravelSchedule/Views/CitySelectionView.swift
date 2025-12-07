@@ -22,24 +22,11 @@ struct CitySelectionView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                SearchBar(text: $viewModel.searchQuery)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-
-                contentView
-            }
-            .background(Color(.appWhite))
-            .navigationTitle("Выбор города")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(Color(.appBlack))
-                    }
+            Group {
+                if let errorType = viewModel.errorType {
+                    ErrorView(errorType: errorType)
+                } else {
+                    normalContent
                 }
             }
             .task {
@@ -47,20 +34,37 @@ struct CitySelectionView: View {
             }
         }
     }
-
+    
     @ViewBuilder
-    private var contentView: some View {
-        if let errorType = viewModel.errorType {
-            ErrorView(errorType: errorType)
-        } else if viewModel.isEmpty {
-            EmptyCityState()
-        } else {
-            CityList(
-                cities: viewModel.filteredCities,
-                selectionType: selectionType,
-                onStationSelected: onStationSelected
-            )
-            .padding(.top, 16)
+    private var normalContent: some View {
+        VStack(spacing: 0) {
+            SearchBar(text: $viewModel.searchQuery)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
+            if viewModel.isEmpty {
+                EmptyCityState()
+            } else {
+                CityList(
+                    cities: viewModel.filteredCities,
+                    selectionType: selectionType,
+                    onStationSelected: onStationSelected
+                )
+                .padding(.top, 16)
+            }
+        }
+        .background(Color(.appWhite))
+        .navigationTitle("Выбор города")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color(.appBlack))
+                }
+            }
         }
     }
 }
