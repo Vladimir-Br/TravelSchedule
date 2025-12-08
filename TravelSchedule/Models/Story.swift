@@ -1,7 +1,7 @@
 
 import Foundation
 
-struct Story: Identifiable {
+struct Story: Identifiable, Sendable {
     let id: Int
     let title: String
     let description: String

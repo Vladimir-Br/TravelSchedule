@@ -5,14 +5,14 @@ import OpenAPIURLSession
 
 typealias AllStations = Components.Schemas.AllStationsResponse
 
-protocol AllStationsServiceProtocol {
+protocol AllStationsServiceProtocol: Sendable {
     func getAllStations(
         lang: String?,
         format: String?
     ) async throws -> AllStations
 }
 
-final class AllStationsService: AllStationsServiceProtocol {
+actor AllStationsService: AllStationsServiceProtocol {
     private let client: Client
     private let apikey: String
 

@@ -1,14 +1,10 @@
 
 import Foundation
 
-struct Station: Identifiable, Hashable {
-    let id: String
-    let title: String
+struct Station: Identifiable, Hashable, Sendable {
     let code: String
+    let title: String
+    var cityTitle: String? = nil
     
-    init(code: String, title: String) {
-        self.id = code
-        self.code = code
-        self.title = title
-    }
+    var id: String { code }
 }

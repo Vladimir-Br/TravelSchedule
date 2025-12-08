@@ -5,14 +5,14 @@ import OpenAPIURLSession
 
 // MARK: - StoriesServiceProtocol
 
-protocol StoriesServiceProtocol {
+protocol StoriesServiceProtocol: Sendable {
     func getStories() async throws -> [Story]
     func markStoryAsViewed(id: Int) async throws
 }
 
 // MARK: - StoriesService
 
-final class StoriesService: StoriesServiceProtocol {
+actor StoriesService: StoriesServiceProtocol {
     
     // MARK: - Properties
     
@@ -29,12 +29,9 @@ final class StoriesService: StoriesServiceProtocol {
     // MARK: - Public Methods
     
     func getStories() async throws -> [Story] {
-        // TODO: Реализовать загрузку из API, когда будет готов endpoint
-        // Пока возвращаем статические данные
         return Story.previewStories
     }
     
     func markStoryAsViewed(id: Int) async throws {
-        // TODO: Отправить на сервер, когда будет готов endpoint
     }
 }

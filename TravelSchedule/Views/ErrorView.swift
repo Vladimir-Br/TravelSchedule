@@ -32,95 +32,71 @@ struct ErrorView: View {
     let errorType: ErrorType
     
     var body: some View {
-        ZStack {
-            Color(.appWhite)
-                .ignoresSafeArea(.container, edges: .top)
+        VStack {
+            Spacer()
             
-            VStack {
-                Spacer()
+            VStack(spacing: 16) {
+                Image(errorType.imageResource)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 223, height: 223)
+                    .clipShape(RoundedRectangle(cornerRadius: 70))
                 
-                VStack(spacing: 16) {
-                    Image(errorType.imageResource)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 223, height: 223)
-                        .cornerRadius(70)
-                    
-                    Text(errorType.message)
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(Color(.appBlack))
-                }
-                
-                Spacer()
+                Text(errorType.message)
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color(.appBlack))
+                    .multilineTextAlignment(.center)
             }
+            
+            Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.appWhite))
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 // MARK: - Preview
 
 #Preview("Server Error") {
-    struct PreviewWrapper: View {
-        @State private var selectedTab = 1
-        
-        var body: some View {
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    MainView()
-                }
-                .tabItem {
-                    Image(.schedule)
-                        .renderingMode(.template)
-                    Text("")
-                }
-                .tag(0)
-                
-                NavigationStack {
-                    ErrorView(errorType: .serverError)
-                }
-                .tabItem {
-                    Image(.settings)
-                        .renderingMode(.template)
-                    Text("")
-                }
-                .tag(1)
+    TabView(selection: .constant(1)) {
+        Text("")
+            .tabItem {
+                Image(.schedule)
+                    .renderingMode(.template)
             }
-            .tint(Color(.appBlack))
+            .tag(0)
+        
+        NavigationStack {
+            ErrorView(errorType: .serverError)
         }
+        .tabItem {
+            Image(.settings)
+                .renderingMode(.template)
+        }
+        .tag(1)
     }
-    
-    return PreviewWrapper()
+    .tint(Color(.appBlack))
 }
 
 #Preview("No Internet") {
-    struct PreviewWrapper: View {
-        @State private var selectedTab = 1
-        
-        var body: some View {
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    MainView()
-                }
-                .tabItem {
-                    Image(.schedule)
-                        .renderingMode(.template)
-                    Text("")
-                }
-                .tag(0)
-                
-                NavigationStack {
-                    ErrorView(errorType: .noInternet)
-                }
-                .tabItem {
-                    Image(.settings)
-                        .renderingMode(.template)
-                    Text("")
-                }
-                .tag(1)
+    TabView(selection: .constant(1)) {
+        Text("")
+            .tabItem {
+                Image(.schedule)
+                    .renderingMode(.template)
             }
-            .tint(Color(.appBlack))
+            .tag(0)
+        
+        NavigationStack {
+            ErrorView(errorType: .noInternet)
         }
+        .tabItem {
+            Image(.settings)
+                .renderingMode(.template)
+        }
+        .tag(1)
     }
-    
-    return PreviewWrapper()
+    .tint(Color(.appBlack))
 }

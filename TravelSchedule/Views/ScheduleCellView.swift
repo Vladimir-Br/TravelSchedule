@@ -14,19 +14,15 @@ struct ScheduleCellView: View {
         return formatter
     }()
     
-    private static let timeFormatter = DateFormatter(format: "HH:mm")
-    private static let dateFormatter = DateFormatter(format: "d MMMM")
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMMM"
+        return formatter
+    }()
     
     private var durationText: String {
         Self.durationFormatter.string(from: schedule.duration) ?? ""
-    }
-    
-    private var departureTimeText: String {
-        Self.timeFormatter.string(from: schedule.departureTime)
-    }
-    
-    private var arrivalTimeText: String {
-        Self.timeFormatter.string(from: schedule.arrivalTime)
     }
     
     private var dateText: String {
@@ -56,10 +52,7 @@ struct ScheduleCellView: View {
 private extension ScheduleCellView {
     var headerRow: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(.railway)
-                .resizable()
-                .frame(width: 38, height: 38)
-                .cornerRadius(12)
+            carrierLogoView
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(schedule.carrierTitle)
@@ -67,8 +60,8 @@ private extension ScheduleCellView {
                     .foregroundColor(.black)
                     .tracking(-0.41)
                 
-                if schedule.hasTransfers, let transferCity = schedule.transferCity {
-                    Text("С пересадкой в \(transferCity)")
+                if schedule.hasTransfers {
+                    Text(schedule.transferCity.map { "С пересадкой в \($0)" } ?? "С пересадкой")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(Color(.appRed))
                         .tracking(0.4)
@@ -84,9 +77,37 @@ private extension ScheduleCellView {
         }
     }
     
+    @ViewBuilder
+    var carrierLogoView: some View {
+        let logoURL = schedule.carrierLogo?.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if let logoURL,
+           !logoURL.isEmpty,
+           let url = URL(string: logoURL) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                case .empty, .failure:
+                    Color.gray.opacity(0.2)
+                @unknown default:
+                    Color.gray.opacity(0.2)
+                }
+            }
+            .frame(width: 38, height: 38)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else {
+            Color.gray.opacity(0.2)
+                .frame(width: 38, height: 38)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    
     var timelineRow: some View {
         HStack(spacing: 4) {
-            Text(departureTimeText)
+            Text(schedule.departureTime, format: .dateTime.hour().minute())
                 .font(.system(size: 17, weight: .regular))
                 .foregroundColor(.black)
                 .tracking(-0.41)
@@ -102,7 +123,7 @@ private extension ScheduleCellView {
             
             separator
             
-            Text(arrivalTimeText)
+            Text(schedule.arrivalTime, format: .dateTime.hour().minute())
                 .font(.system(size: 17, weight: .regular))
                 .foregroundColor(.black)
                 .tracking(-0.41)

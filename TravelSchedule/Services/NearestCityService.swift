@@ -5,7 +5,7 @@ import OpenAPIURLSession
 
 typealias NearestCity = Components.Schemas.NearestCityResponse
 
-protocol NearestCityServiceProtocol {
+protocol NearestCityServiceProtocol: Sendable {
     func getNearestCity(
         lat: Double,
         lng: Double,
@@ -15,7 +15,7 @@ protocol NearestCityServiceProtocol {
     ) async throws -> NearestCity
 }
 
-final class NearestCityService: NearestCityServiceProtocol {
+actor NearestCityService: NearestCityServiceProtocol {
     private let client: Client
     private let apikey: String
 

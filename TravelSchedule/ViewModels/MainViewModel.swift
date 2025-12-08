@@ -1,17 +1,46 @@
 
 import Foundation
 
+@MainActor
 @Observable
 final class MainViewModel {
+    
+    // MARK: - Properties
+    
     var fromStation: Station?
     var toStation: Station?
     
-    var stories: [Story] = Story.previewStories
+    private(set) var stories: [Story] = []
     var selectedStoryIndex: Int = 0
     var isStoriesPresented: Bool = false
     
+    private let storiesService: StoriesServiceProtocol?
+    
+    // MARK: - Computed Properties
+    
     var isFindButtonEnabled: Bool {
         fromStation != nil && toStation != nil
+    }
+    
+    // MARK: - Initialization
+    
+    init(storiesService: StoriesServiceProtocol? = nil) {
+        self.storiesService = storiesService
+    }
+    
+    // MARK: - Public Methods
+    
+    func loadStories() async {
+        guard let service = storiesService else {
+            loadLocalStories()
+            return
+        }
+        
+        do {
+            stories = try await service.getStories()
+        } catch {
+            loadLocalStories()
+        }
     }
     
     func swapStations() {
@@ -48,5 +77,11 @@ final class MainViewModel {
     
     func dismissStories() {
         isStoriesPresented = false
+    }
+    
+    // MARK: - Private Methods
+    
+    private func loadLocalStories() {
+        stories = Story.previewStories
     }
 }

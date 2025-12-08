@@ -5,7 +5,7 @@ import OpenAPIURLSession
 
 typealias CarrierInfo = Components.Schemas.CarrierResponse
 
-protocol CarrierServiceProtocol {
+protocol CarrierServiceProtocol: Sendable {
     func getCarrierInfo(
         code: String,
         system: String?,
@@ -14,7 +14,7 @@ protocol CarrierServiceProtocol {
     ) async throws -> CarrierInfo
 }
 
-final class CarrierService: CarrierServiceProtocol {
+actor CarrierService: CarrierServiceProtocol {
     private let client: Client
     private let apikey: String
 

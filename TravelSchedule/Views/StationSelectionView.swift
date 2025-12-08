@@ -19,6 +19,20 @@ struct StationSelectionView: View {
     }
     
     var body: some View {
+        Group {
+            if let errorType = viewModel.errorType {
+                ErrorView(errorType: errorType)
+            } else {
+                normalContent
+            }
+        }
+        .task {
+            await viewModel.loadStations()
+        }
+    }
+    
+    @ViewBuilder
+    private var normalContent: some View {
         VStack(spacing: 0) {
             SearchBar(text: $viewModel.searchQuery)
                 .padding(.horizontal, 16)
