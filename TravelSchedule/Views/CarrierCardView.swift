@@ -112,7 +112,7 @@ struct CarrierCardView: View {
     }
 
     private func contactField(label: String, value: String?, valueColor: Color) -> some View {
-        let displayValue = (value?.isEmpty == false) ? value! : " "
+        let displayValue = (value?.isEmpty == false) ? (value ?? "") : " "
         let textColor = (value?.isEmpty == false) ? valueColor : Color(.appWhite)
         
         return HStack(spacing: 0) {

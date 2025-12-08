@@ -22,8 +22,10 @@ final class CarrierCardViewModel {
         self.carrier = Carrier(
             code: title,
             title: title,
+            website: nil,
             phone: phone,
             email: email,
+            address: nil,
             logo: logo
         )
     }

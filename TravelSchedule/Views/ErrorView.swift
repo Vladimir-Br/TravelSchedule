@@ -40,7 +40,7 @@ struct ErrorView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 223, height: 223)
-                    .cornerRadius(70)
+                    .clipShape(RoundedRectangle(cornerRadius: 70))
                 
                 Text(errorType.message)
                     .font(.system(size: 24, weight: .bold))
